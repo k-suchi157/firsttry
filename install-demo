@@ -1,0 +1,43 @@
+
+
+#To install python 2.7 from the official python image
+
+
+
+docker pull python:2.7  # official python image
+docker run -it --rm python:2.7 bash -c 'apt-get update && apt-get install -y python python-dev python-distribute python-pip
+
+
+
+# To install MongoDB from the latest version of Ubuntu
+
+FROM ubuntu:16.04
+
+# Installation:
+# Import MongoDB public GPG key AND create a MongoDB list file
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+RUN apt-get install -y --no-install-recommends software-properties-common
+RUN echo "deb http://repo.mongodb.org/apt/ubuntu $(cat /etc/lsb-release | grep DISTRIB_CODENAME | cut -d= -f2)/mongodb-org/3.2 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+
+# Update apt-get sources AND install MongoDB version- 3.0.1
+RUN apt-get update && apt-get install -y mongodb-org
+
+RUN apt-get update && apt-get install -y mongodb-org=3.0.1 mongodb-org-server=3.0.1 mongodb-org-shell=3.0.1 mongodb-org-> mongos=3.0.1 mongodb-org-tools=3.0.1
+
+
+RUN mkdir -p /data/db   # Create the MongoDB data directory
+EXPOSE 27017   # Expose port 27017 from the container to the host
+ENTRYPOINT ["/usr/bin/mongod"]    # Set usr/bin/mongod as the dockerized entry-point application
+
+# to install Tomcat 7 from git repository
+
+FROM quintenk/jdk7-oracle
+RUN apt-get -y install tomcat7
+RUN echo "JAVA_HOME=/usr/lib/jvm/java-7-oracle" >> /etc/default/tomcat7
+EXPOSE 8080
+CMD service tomcat7 start && tail -f /var/lib/tomcat7/logs/catalina.out
+
+
+# The command to run the Dockerfile such that once the container boots, apache tomcat's home page is accessible from the host on port 7080
+
+docker run -p 7080:8080 craig/tomcat
