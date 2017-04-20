@@ -1,0 +1,55 @@
+Consider below 2 config files located in /opt/app/Script/config folder
+
+server_name ==>  file containing server name list
+script_properties ==> file containing config parameters.
+
+
+> cat server_name.txt   
+alxyz.abd.ppp.com,blxyz.abd.ppp.com,clxyz.abd.ppp.com
+
+> cat script_properties
+Script_path=/opt/app/Script
+Log_path=$Script_path/LOG
+
+Please find below the script placed in /opt/app/Script/bin to connect to all servers via SSH as per a single prompt from user
+
+
+#/bin/sh	
+. ../config/
+
+
+#script to connect to all servers via SSH as per a single prompt from user.
+
+Fn_Connect()
+{
+
+LogFile="$Log_path/logfile.log"
+sed "s/,/\n/g" server_name.txt > tmp_server_name.txt
+echo "Please enter your choice to connect (y/n)"
+read ch
+	if echo "$ch" | grep -iq "^y" ;then
+ 
+		while read $s_name
+		do 
+		#connecting to server via SSH
+		ssh -q $s_name "ps -ef|grep -v grep|grep -i tomcat"	 </dev/null > $LogFile   #check tomcat process in all servers.
+			
+		done < tmp_server_name.txt
+	else 
+	echo "exiting Connect Fn"
+	fi
+
+}
+
+Fn_main()
+{
+	#Invoke Connect function
+    Fn_Connect
+}
+
+#Invoke Main function
+Fn_main
+
+
+	
+	
